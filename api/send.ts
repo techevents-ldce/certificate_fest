@@ -19,7 +19,7 @@ export default async function handler(req: any, res: any) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'certificates@lakshyal dce.in', // Adjust this to your verified domain on Resend
+      from: process.env.RESEND_FROM_EMAIL || 'noreply@certificates.lakshyaldce.in',
       to,
       subject,
       html,
@@ -32,7 +32,11 @@ export default async function handler(req: any, res: any) {
     });
 
     if (error) {
-      return res.status(400).json(error);
+      console.error('Resend Error:', error);
+      return res.status(400).json({
+        message: error.message || 'Resend API Error',
+        name: error.name
+      });
     }
 
     return res.status(200).json(data);
