@@ -1,0 +1,171 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.progressTracker {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.stepsContainer {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  position: relative;
+}
+
+.stepsContainer::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #e0e0e0;
+  z-index: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: not-allowed;
+  position: relative;
+  z-index: 1;
+}
+
+.step.completed {
+  cursor: pointer;
+}
+
+.step.completed:hover .stepNumber {
+  background: #667eea;
+  color: white;
+}
+
+.stepNumber {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  background: #e0e0e0;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.step.active .stepNumber {
+  background: #667eea;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.step.completed .stepNumber {
+  background: #4caf50;
+  color: white;
+}
+
+.stepLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-align: center;
+}
+
+.step.active .stepLabel {
+  color: #667eea;
+}
+
+.step.completed .stepLabel {
+  color: #4caf50;
+}
+
+.mainContent {
+  flex: 1;
+  max-width: 100%;
+}
+
+.navigationFooter {
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  max-width: 100%;
+}
+
+.navBtn {
+  padding: 10px 24px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.navBtn:hover:not(:disabled) {
+  background: #5568d3;
+}
+
+.navBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.stepIndicator {
+  color: #666;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.footer {
+  background: #333;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  font-size: 12px;
+}
+
+.footer p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .stepsContainer {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .stepsContainer::before {
+    display: none;
+  }
+
+  .navigationFooter {
+    flex-direction: column;
+  }
+
+  .navBtn {
+    width: 100%;
+  }
+}
