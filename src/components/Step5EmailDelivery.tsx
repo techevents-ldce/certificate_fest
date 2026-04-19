@@ -20,7 +20,6 @@ export const Step5EmailDelivery: React.FC<Step5EmailDeliveryProps> = ({
   const [body, setBody] = useState(
     'Dear {{name}},\n\nCongratulations! We are pleased to send you your certificate for participating in Lakshya TechFest 2025.\n\nBest regards,\nThe Lakshya Team'
   );
-  const [apiKey, setApiKey] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [sending, setSending] = useState(false);
   const [progress, setProgress] = useState<SendingProgress | null>(null);
@@ -36,11 +35,7 @@ export const Step5EmailDelivery: React.FC<Step5EmailDeliveryProps> = ({
       return;
     }
 
-    if (!apiKey.trim()) {
-      setError('Please enter your Resend API Key');
-      return;
-    }
-
+    setSending(true);
     // Create certificate map
     const certificateMap = new Map<string, Blob>();
     certificates.forEach(({ member, certificate }) => {
@@ -54,7 +49,6 @@ export const Step5EmailDelivery: React.FC<Step5EmailDeliveryProps> = ({
         certificateMap,
         subject,
         body,
-        apiKey,
         (prog) => {
           setProgress(prog);
           onEmailsSent?.(prog);
@@ -91,7 +85,6 @@ export const Step5EmailDelivery: React.FC<Step5EmailDeliveryProps> = ({
         certificateMap,
         subject,
         body,
-        apiKey,
         (prog) => {
           setProgress((prev) =>
             prev
@@ -157,26 +150,6 @@ export const Step5EmailDelivery: React.FC<Step5EmailDeliveryProps> = ({
               </label>
             </div>
 
-            <div className={styles.section}>
-              <label>
-                <strong>Resend API Key:</strong>
-                <p className={styles.hint}>
-                  Get your API key from{' '}
-                  <a href="https://resend.com" target="_blank" rel="noopener noreferrer">
-                    resend.com
-                  </a>
-                </p>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  disabled={sending || isLoading}
-                  className={styles.input}
-                  placeholder="re_..."
-                />
-              </label>
-            </div>
-
             {/* Email Preview */}
             <button
               onClick={() => setShowPreview(!showPreview)}
@@ -206,7 +179,7 @@ export const Step5EmailDelivery: React.FC<Step5EmailDeliveryProps> = ({
 
             <button
               onClick={handleSendAll}
-              disabled={sending || isLoading || !apiKey.trim()}
+              disabled={sending || isLoading}
               className={styles.sendBtn}
             >
               {sending ? '📧 Sending...' : '✓ Send Certificates to All Members'}

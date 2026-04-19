@@ -1,39 +1,40 @@
 import type { Member, SendingProgress } from '../types';
 
 /**
- * Send certificate email to a single recipient
+ * Send certificate email via internal API
  */
 export async function sendCertificateEmail(
   member: Member,
   certificateBlob: Blob,
   subject: string,
-  body: string,
-  resendApiKey: string
+  body: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Replace {{name}} placeholder with member's actual name
     const personalizedBody = body.replace(/\{\{name\}\}/g, member.fullName);
 
-    // Prepare form data
-    const formData = new FormData();
-    formData.append('from', 'noreply@lakshya.dev');
-    formData.append('to', member.email);
-    formData.append('subject', subject);
-    formData.append('html', personalizedBody);
+    // Convert Blob to Base64 for the serverless function
+    const base64Content = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(certificateBlob);
+    });
 
-    // Add attachment
-    formData.append(
-      'attachments',
-      certificateBlob,
-      `${member.fullName.replace(/\s+/g, '_')}_Certificate.pdf`
-    );
-
-    const response = await fetch('https://api.resend.com/emails', {
+    const response = await fetch('/api/send', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
       },
-      body: formData,
+      body: JSON.stringify({
+        to: member.email,
+        subject,
+        html: personalizedBody.replace(/\n/g, '<br/>'),
+        attachment: base64Content,
+        filename: `${member.fullName.replace(/\s+/g, '_')}_Certificate.pdf`
+      }),
     });
 
     if (!response.ok) {
@@ -61,7 +62,6 @@ export async function sendCertificates(
   certificateBlobs: Map<string, Blob>,
   subject: string,
   body: string,
-  resendApiKey: string,
   onProgress?: (progress: SendingProgress) => void
 ): Promise<SendingProgress> {
   const progress: SendingProgress = {
@@ -86,8 +86,7 @@ export async function sendCertificates(
       member,
       certificateBlob,
       subject,
-      body,
-      resendApiKey
+      body
     );
 
     if (result.success) {
