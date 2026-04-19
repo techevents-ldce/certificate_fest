@@ -38,10 +38,17 @@ export async function sendCertificateEmail(
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      let errorMessage = 'Failed to send email';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch (e) {
+        // Not a JSON response, likely an HTML error page or "Request Entity Too Large"
+        errorMessage = await response.text();
+      }
       return {
         success: false,
-        error: error.message || 'Failed to send email'
+        error: errorMessage.length > 100 ? errorMessage.substring(0, 100) + '...' : errorMessage
       };
     }
 

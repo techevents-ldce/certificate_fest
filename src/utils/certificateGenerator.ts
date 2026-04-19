@@ -20,7 +20,7 @@ export async function convertBlobToPDF(imageBlob: Blob): Promise<Blob> {
           format: [width, height]
         });
         
-        doc.addImage(imgData, 'PNG', 0, 0, width, height);
+        doc.addImage(imgData, 'JPEG', 0, 0, width, height, undefined, 'FAST');
         resolve(doc.output('blob'));
       };
       img.onerror = reject;
@@ -113,7 +113,7 @@ export async function generateCertificate(
           } else {
             reject(new Error('Failed to generate certificate'));
           }
-        }, 'image/png');
+        }, 'image/jpeg', 0.8);
       } catch (error) {
         reject(error);
       }
