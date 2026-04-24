@@ -40,11 +40,18 @@ export async function sendCertificateEmail(
     if (!response.ok) {
       let errorMessage = 'Failed to send email';
       try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
+        const textData = await response.text();
+        try {
+          const errorData = JSON.parse(textData);
+          console.error('Parsed API Error:', errorData);
+          errorMessage = errorData.message || JSON.stringify(errorData);
+        } catch (e) {
+          console.error('Raw API Error text:', textData);
+          errorMessage = textData;
+        }
       } catch (e) {
-        // Not a JSON response, likely an HTML error page or "Request Entity Too Large"
-        errorMessage = await response.text();
+        console.error('Failed to read response body:', e);
+        errorMessage = e instanceof Error ? e.message : String(e);
       }
       return {
         success: false,
@@ -54,9 +61,10 @@ export async function sendCertificateEmail(
 
     return { success: true };
   } catch (error) {
+    console.error('Fetch error in sendCertificateEmail:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: error instanceof Error ? error.message : String(error)
     };
   }
 }
